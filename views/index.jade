@@ -1,0 +1,16 @@
+html
+  head
+    link(rel='stylesheet', href='/stylesheets/phone.css')
+    title Pug
+  body
+    .container
+      h1 Введите номер телефона сервисного аккаунта
+      .container__item
+        form.form(method='POST', action="/phone")
+          input.form__field(type='phone', name='phone' placeholder='Ваш номер телефона')
+          button.btn.btn--primary.btn--inside.uppercase(type='submit') Отправить
+      .container__item.container__item--bottom
+        p
+          | Номер обязательно должен быть зарегистрирован в
+          a(href='//telegram.org/' target='_blank') Telegram
+        | .

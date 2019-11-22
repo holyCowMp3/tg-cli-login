@@ -1,0 +1,16 @@
+html
+  head
+    link(rel='stylesheet', href='/stylesheets/phone.css')
+    title Pug
+  body
+    .container
+      h1 Введите код пришедший в сообщении на номер #{title}
+      .container__item
+        form.form(method='POST', action="/code")
+          input.form__field(type='text' name='code' placeholder='Введите код')
+          button.btn.btn--primary.btn--inside.uppercase(type='submit') Отправить
+      .container__item.container__item--bottom
+        p
+          | Номер обязательно должен быть зарегистрирован в
+          a(href='//telegram.org/' target='_blank') Telegram
+        | .

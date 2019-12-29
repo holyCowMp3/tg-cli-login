@@ -7,7 +7,7 @@ global.phoneNumber = null;
 global.code = null;
 let tgcli = undefined;
 router.get('/', function (req, res, next) {
-    if (fs.existsSync("/home/pi/.telegram-cli")) {
+    if (fs.existsSync("/home/pi/telegramClientReciever/main_session.session")) {
         res.render('alreadysetup', {title: 'Express'});
     } else {
         res.render('index', {title: 'Express'});
@@ -15,11 +15,12 @@ router.get('/', function (req, res, next) {
 });
 router.get('/drop', function (req, res, next) {
     try {
-        rimraf.sync("/home/pi/.telegram-cli");
+        rimraf.sync("/home/pi/telegramClientReciever/main_session.session");
+        rimraf.sync("/home/pi/tglogin/main_session.session");
     } catch (e) {
         console.log(e);
     }
-    if (fs.existsSync("/home/pi/.telegram-cli")) {
+    if (fs.existsSync("/home/pi/telegramClientReciever/main_session.session")) {
         res.render('alreadysetup', {title: 'Express'});
     } else {
         res.render('index', {title: 'Express'});
@@ -27,27 +28,28 @@ router.get('/drop', function (req, res, next) {
 });
 router.post('/phone', function (req, res, next) {
     global.phone = req.body.phone;
-    if (fs.existsSync("/home/pi/.telegram-cli")) {
+    if (fs.existsSync("/home/pi/tglogin/main_session.session")) {
         res.render('alreadysetup', {title: 'Express'});
     } else {
         if (tgcli === undefined) {
-            tgcli = spawn('/home/pi/tgcli/bin/telegram-cli', ['-k', '/home/pi/tgcli/tg-server.pub']);
+            tgcli = spawn('python3', ["/home/pi/telegramClientReciever/teleg.py"]);
         } else {
             tgcli.stdin.pause();
             tgcli.kill();
-            tgcli = spawn('/home/pi/tgcli/bin/telegram-cli', ['-k', '/home/pi/tgcli/tg-server.pub']);
+            tgcli = spawn('python3', ["/home/pi/telegramClientReciever/teleg.py"]);
         }
         tgcli.stdout.on('data', (data) => {
-            if (data.includes('phone number:')) {
+            if (data.includes('Please enter your phone (or bot token)')) {
                 tgcli.stdin.write(req.body.phone + '\n');
-            } else if (data.includes('for phone code')) {
+            } else if (data.includes('Please enter the code you received')) {
                 setTimeout(() => {
                     tgcli.stdin.write(global.code + '\n');
-                }, 30000);
+                }, 25000);
                 setTimeout(() => {
                     const {execSync} = require('child_process');
+                    let stdout1 = execSync('mv /home/pi/tglogin/main_session.session /home/pi/telegramClientReciever/');
                     let stdout = execSync('pm2 restart TGApi');
-                }, 35000);
+                }, 30000);
             }
         });
         tgcli.stderr.on('data', (data) => {
